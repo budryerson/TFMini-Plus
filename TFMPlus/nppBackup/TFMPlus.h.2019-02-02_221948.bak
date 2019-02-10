@@ -1,0 +1,78 @@
+/*  File Name: TFMiniPlus.h
+ *  Described: Arduino Library for testing the Benewake TFMini Plus Lidar sensor
+ *             The TFMini Plus is a unique product and the various TFMini
+ *             Arduino Libraries are not compatible with the TFMini Plus.
+ *  Developer: Bud Ryerson
+ *  Inception: 31 JAN 2019
+ *
+ *  This is a modified version of the TFMini Library by Peter Jansen (December 11/2017)
+*/
+
+#ifndef TFMPLUS_H       // Guard to compile only one time
+#define TFMPLUS_H
+
+#include <Arduino.h>    // Always remember this. It is very important.
+
+// Defines
+#define TFMPLUS_BAUDRATE   115200
+#define TFMPLUS_DEBUGMODE  1
+
+// The frame size is nominally 9 characters, but don't include
+// the first two 0x59's that mark the start of the frame
+#define TFMPLUS_FRAME_SIZE           9
+
+// Timeouts
+#define MAX_BYTES_BEFORE_HEADER     30
+#define MAX_MEASUREMENT_ATTEMPTS    20
+
+// States
+#define READY                      0
+#define NO_HEADER_DETECTED         1
+#define BAD_CHECKSUM               2
+#define TOO_MANY_TRIES             3
+#define NO_SERIAL                  4
+#define MEASUREMENT_OK            10
+
+// Object Class Definitions
+class TFMPlus
+{
+  public:
+    TFMPlus();
+    ~TFMPlus();
+
+    uint16_t dist;
+    uint16_t flux;
+    uint16_t temp;
+    bool debugMode;
+
+    bool begin(Stream* _streamPtr);
+    // bool systemReset();
+    // bool restoreFactorySetting();
+
+    // uint16_t setFrameRate( uint16_t frameRate);
+    // uint32_t setBaudRate( uint32_t baudRate);
+    // void toggleDataOutput();
+    void getFirmwareVersion();
+    void externalTrigger();  // set frame rate to zero first
+    bool getData( uint16_t& dist, uint16_t& flux, uint16_t& temp);
+    void setDebugMode( bool mode);
+
+  private:
+    Stream* streamPtr;
+    int state;
+    bool TFMPlus::readData( uint8_t & rdByte);
+    int takeMeasurement();
+    uint16_t distance;
+    uint16_t strength;
+    uint16_t temperature;
+
+    void flushBuffer();
+    bool checkSum( uint8_t *data, uint8_t dataLen);
+    void writeData( uint8_t *data, uint8_t dataLen);
+    void printData( uint8_t *data, uint8_t dataLen);
+    //bool saveSettings();   // must follow every command that modifis parameters
+    void setStandardOutputMode();
+
+};
+
+#endif
