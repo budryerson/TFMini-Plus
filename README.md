@@ -12,14 +12,14 @@ Data output rates are programmable up to 10KHz, but the internal measuring frame
 <br />The default data output rate is 100Hz.
 
 The default format for each data frame consists of three measuremnets:
-* Distance to target in centimeters. Range: 0 - 1200
-* Strength of return signal in arbitrary units. Range: 0 - 65535
-* Temperature of the device
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters. Range: 0 - 1200
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Strength of return signal in arbitrary units. Range: 0 - 65535
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device
 
-#### Commands
+
 This library now only supports two commands:
-1. Read data frame: distance, signal strength, temperature
-2. Return the device firmware version number
+<br />&nbsp;&nbsp;&nbsp;  1. Read data frame: distance, signal strength, temperature
+<br />&nbsp;&nbsp;&nbsp;  2. Return the device firmware version number: X.X.X
 <br />More commands will follow in time.
 
 An example Arduino sketch is included here: "TFMP_example.ino".
