@@ -18,8 +18,8 @@ The default format for each data frame consists of three measuremnets:
 
 
 This library now only supports two commands:
-<br />&nbsp;&nbsp;&nbsp;  1. Read data frame: distance, signal strength, temperature
-<br />&nbsp;&nbsp;&nbsp;  2. Return the device firmware version number: X.X.X
+<br />&nbsp;&nbsp;  1. Read data frame: distance, signal strength, temperature
+<br />&nbsp;&nbsp;  2. Return the device firmware version number: X.X.X
 <br />More commands will follow in time.
 
 An example Arduino sketch is included here: "TFMP_example.ino".
