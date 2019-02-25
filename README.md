@@ -18,9 +18,11 @@ The default format for each frame of data consists of three measuremnets:
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device
 
 
-This library now supports only two commands:
-<br />&nbsp;&nbsp;  1. Read data frame: distance, signal strength, temperature
-<br />&nbsp;&nbsp;  2. Return the device firmware version number: X.X.X
-<br />More commands will follow in time.
+Use the library's 'buildCommand' to send a command and a parameter to the devicee,
+and return a status code.
+<br />A command must be selected from the library's list of twelve defined commands.
+<br />A parameter can be entered directly as a number, but it is better to choose
+from the library's defined lists.  **An improper or unknown baud rate can block communication,
+and there is no external means of resetting the device to factory defaults.**
 
 An example Arduino sketch "TFMP_example.ino" is included.
