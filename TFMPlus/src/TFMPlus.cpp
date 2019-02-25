@@ -3,8 +3,8 @@
  *            The TFMini Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
  * Developer: Bud Ryerson
- * Inception: 31 JAN 2019 v0.1.0
- * Last work: 25 FEB 2019 v0.2.0
+ * Inception: 31 JAN 2019 v0.2.0
+ * Last work: 25 FEB 2019 v0.3.0
  *
  * Description: Arduino library for the Benewake TFMini Plus
  * time-of-flight Lidar ranging sensor.
