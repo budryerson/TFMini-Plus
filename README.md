@@ -1,7 +1,7 @@
 # TFMini-Plus
 #### Arduino Library for the Benewake TFMini-Plus Lidar sensor
 
-The Benewake TFMini-Plus is a unique product and not merely an enhanced version of the TFMini. It has its own command and data structure. Therefore, Arduino TFMini libraries usually are not compatible with the TFMini Plus.
+The Benewake TFMini-Plus is a unique product and not merely an enhanced version of the TFMini. It has its own command and data structure. Therefore, this Arduino TFMini-Plus library is not compatible with the TFMini product.
 
 The Plus features a UART serial communication interface. The serial baud rate is programmable.
 <br />Only these rates are supported: 9600, 14400, 19200, 56000, 115200, 460800, and 921600.
