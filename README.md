@@ -15,15 +15,15 @@ The default format for each frame of data consists of three measuremnets:
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Strength of return signal in arbitrary units. Range: 0 - 65535
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device
 
-
 The device is set by default to a 115200 baud rate and a 100Hz data frame rate.
 Upon power-up it will immediately begin to send measurement data.
-Use the library's 'getData( dist, flux, temp)' function to pass back measurement data and return system status.
-Fewer errors will occur if the rate of data sampling roughly matches the output data frame rate.
 
-Use the library's 'buildCommand( cmnd, param)' function to send a command and a parameter to the device.
-The function returns a status or error code.  A command (cmnd) must be selected from the library's list
-of twelve defined commands. A parameter (param) may be entered directly as an unsigned 32bit number,
-but it is better to choose from the library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
+The 'begin()' function passes a serial stream to the library and returns a boolean value (TRUE/FALSE) whether serial data is available. The function also sets a public one byte status/error code. Status codes are defined within the library.
+
+The 'getData( dist, flux, temp)' function passes back three measurement values.  It returns a boolean value and also sets the status byte.  Fewer errors occur if the rate of data sampling roughly matches the device's output data frame rate.
+
+The 'buildCommand( cmnd, param)' function sends a 32bit command and a 32bit parameter to the device. It returns a boolean value and also sets the status byte.  A command (cmnd) must be selected from the library's list of twelve defined commands. A parameter (param) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
+
+Any change of device settings (frame rate or baud rate) must be followed by a SAVE_SETTINGS command or the changed values will be lost when the power is removed.
 
 An example Arduino sketch "TFMP_example.ino" is included.
