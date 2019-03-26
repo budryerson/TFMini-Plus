@@ -1,7 +1,7 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29 JAN 2019
- * Last work: 14 MAR 2019
+ * Last work: 25 MAR 2019 - corrected a 'bbTfmp' call to 'tfmP' in the setup()
  *
  * Description: Arduino sketch to test the Benewake TFMini Plus
  * Lidar ranging sensor using the TFMPlus library v1.1.0.
@@ -62,7 +62,7 @@ void setup()
   // Initialize lidar device object and pass serial port.
   // Display message whether Lidar device is available
   printf("Lidar device serial port \"Serial1\" ");
-  if( bbTfmp.begin( &Serial1)) printf( "initalized.");
+  if( tfmP.begin( &Serial1)) printf( "initalized.");
     else printf( "not available.");
   printf( "\r\n");
 
