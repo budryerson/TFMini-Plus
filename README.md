@@ -22,7 +22,7 @@ The 'begin()' function passes a serial stream to the library and returns a boole
 
 The 'getData( dist, flux, temp)' function passes back three measurement values.  It returns a boolean value and also sets the status byte.  Fewer errors occur if the rate of data sampling roughly matches the device's output data frame rate.
 
-The 'buildCommand( cmnd, param)' function sends a 32bit command and a 32bit parameter to the device. It returns a boolean value and also sets the status byte.  A command (cmnd) must be selected from the library's list of twelve defined commands. A parameter (param) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
+The 'sendCommand( cmnd, param)' function sends a 32bit command and a 32bit parameter to the device. It returns a boolean value and also sets the status byte.  A command (cmnd) must be selected from the library's list of twelve defined commands. A parameter (param) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
 
 Any change of device settings (frame rate or baud rate) must be followed by a SAVE_SETTINGS command or the changed values will be lost when the power is removed.
 
