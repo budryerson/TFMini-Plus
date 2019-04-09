@@ -3,7 +3,7 @@
  *            The TFMini Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
  * Developer: Bud Ryerson
- * Inception: v0.2.0 - 31 JAN 2019 
+ * Inception: v0.2.0 - 31 JAN 2019
  *            v1.0.0 - 25 FEB 2019 - Initial release
  * Last work:
  * v1.0.1 - 09MAR19 - 'build()' function always returned TRUE.
@@ -15,6 +15,12 @@
  *    Example code is updated.
  * v1.1.1 - 14MAR19 - Two commands: RESTORE_FACTORY_SETTINGS
  *    and SAVE_SETTINGS were not defined correctly.
+ * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
+ *    and more robust when serial read skips a byte or fails entirely.
+ * v1.3.1 - 08APR19 - Redefined commands to include response length
+      **********************     IMPORTANT    ************************
+      ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
+      ****************************************************************
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -32,7 +38,7 @@
  *  Function returns TRUE/FALSE whether completed without error.
  *  Error, if any, is saved as a one byte 'status' code.
  *
- * 'buildCommand( cmnd, param)' sends a 32bit command code (cmnd)
+ * 'sendCommand( cmnd, param)' sends a 32bit command code (cmnd)
  *  and a 32bit parameter value (param). Returns TRUE/FALSE and
  *  sets a one byte status code.
  *  Commands are selected from the library's list of defined commands.
@@ -40,226 +46,241 @@
  *  for safety, they should be chosen from the Library's defined lists.
  *  An incorrect value can render the device uncomminicative.
  *
- * Inspired by the TFMini Arduino Library of Peter Jansen (11 DEC 2017)
  */
 
 #include <TFMPlus.h>
 
 // Constructor
-  TFMPlus::TFMPlus(){}
-  TFMPlus::~TFMPlus(){}
+TFMPlus::TFMPlus(){}
+TFMPlus::~TFMPlus(){}
 
 // Return T/F if receiving serial data from device.
 // And set system status to provide more information.
 bool TFMPlus::begin(Stream *streamPtr)
 {
-  pStream = streamPtr;          // Store reference to stream/serial object
-  delay( 10);                   // Delay for device data in serial buffer.
-  if( (*pStream).available())   // If data present...
-  {
-    status = READY;             // set status to READY
-    return true;                // and return TRUE.
-  }
-  else                          // Otherwise...
-  {
-     status = SERIAL;           // set status to SERIAL error
-     return false;              // and return false.
-  }
-}
-
-// Read one byte. Return TRUE/FALSE and set
-// system error status. Try 20 times. This
-// can wait up to 20 milliseconds for data.
-bool TFMPlus::readData( uint8_t &rdByte)
-{
-  for( uint8_t i = 0; i < TFMP_MAX_READS; ++i)
-  {
-    if( (*pStream).available())       // If data is availabele...
+    pStream = streamPtr;          // Store reference to stream/serial object
+    delay( 10);                   // Delay for device data in serial buffer.
+    if( (*pStream).available())   // If data present...
     {
-      rdByte = (*pStream).read();     // read one byte...
-      status = READY;                 // set status to READY...
-      return true;                    // and return "true".
+        status = READY;             // set status to READY
+        return true;                // and return TRUE.
     }
-    delay( 1);        // wait for a milliseond
-  }
-  status = SERIAL;   // If no serial data then set error...
-  return false;      // and return "false".
+    else                          // Otherwise...
+    {
+         status = SERIAL;           // set status to SERIAL error
+         return false;              // and return false.
+    }
 }
 
-// Return a checksum byte creted from the contents of 'data'.
-// Length of 'data' is given in the second byte: 'data[1]'.
-uint8_t TFMPlus::makeSum( uint8_t *data)
-{
-    uint8_t len;  // length of data
-    if( data[ 0] == 0x5A) len = data[1] - 1;
-      else len = TFMP_FRAME_SIZE - 1;
-    uint16_t Sum = 0;   // Sum up all but last byte of data.
-    for( uint8_t i = 0; i < len; i++) Sum += data[ i];
-    return uint8_t(Sum);
-}
-
-// Read one complete frame of data from the device.
 bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
 {
-  uint8_t frame[ TFMP_FRAME_SIZE];  // initialize data frame
-  memset( frame, 0, sizeof( frame));   // reset all bytes of frame to 0
-
-  // Step 1 - Read serial bytes from device or return SERIAL error
-  // if too many tries.  Continue until header code is detected
-  // or return HEADEER error if too many bytes are read.
-  int numCharsRead = 0;      // initalize char counter
-  while( 1)
-  {
-    if( !readData( frame[ 1])) return false;
-    if( (frame[ 0] == 0x59) && (frame[ 1] == 0x59))  // If header detected...
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 1 - Get data from the device.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Set a one second timer to timeout if HEADER never appears
+    // or serial data never becomes available
+    uint32_t serialTimeout = millis() + 1000;
+    frame[ 0] = 0;         // clear just the first header byte
+    // Continuously read one byte into the end of the frame buffer
+    // and then left shift the whole buffer until the two HEADER
+    // bytes appear as thte first two bytes of the frame.
+    while( (frame[ 0] != 0x59) || (frame[ 1] != 0x59))
     {
-      break;                 // break to finish reading the frame.
+        if( (*pStream).available())
+        {
+            // Read one byte into the framebuffer's
+            // last plus one position.
+            frame[ TFMP_FRAME_SIZE] = (*pStream).read();
+            // Shift the last nine bytes one byte left.
+            memcpy( frame, frame+1, TFMP_FRAME_SIZE);
+        }
+        // If HEADER or serial data are not available
+        // for more than one second...
+        if( millis() >  serialTimeout)
+        {
+            status = SERIAL;   // then set error...
+            return false;      // and return "false".
+        }
     }
-    else                     // If not 0x59 in first two positions...
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 2 - Perform a checksum test.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Add together all bytes but the last.
+    uint16_t Sum = 0;
+    for( uint8_t i = 0; i < ( TFMP_FRAME_SIZE - 1); i++) Sum += frame[ i];
+    //  If the low order byte does not equal the last byte...
+    if( ( uint8_t)Sum != frame[ TFMP_FRAME_SIZE - 1])
     {
-      frame[ 0] = frame[ 1]; // move 2nd byte to 1st pos and continue reading.
-      numCharsRead++;        // Advance character counter.
+      status = CHECKSUM;  // then set error...
+      return false;       // and return "false."
     }
-    // If more than MAX BYTES are read without detecting a frame header,
-    // then set HEADEER error and return false
-    if( numCharsRead > MAX_BYTES_BEFORE_HEADER)
-    {
-      status = HEADER;
-      return false;
-    }
-  }
 
-  // Step 2 - Read rest of bytes to fill data frame
-  // or halt and return 'false' if data runs out.
-  // 'readData()' routine sets status byte
-  for( int i = 2; i < TFMP_FRAME_SIZE; i++)
-  {
-    if( !readData( frame[ i])) return false;
-  }
-
-  // Step 3 - Get low order byte of sum of all bytes but
-  // last in the frame and compare it to last byte of frame.
-  if( makeSum( frame) != frame[ TFMP_FRAME_SIZE - 1])
-  {
-    status = CHECKSUM;
-    return false;
-  }
-
-  // Step 4 - Interpret frame data
-  dist = frame[ 2] + ( frame[ 3] << 8);
-  flux = frame[ 4] + ( frame[ 5] << 8);
-  temp = frame[ 6] + ( frame[ 7] << 8);
-
-  status = READY;
-  return true;
-}
-
-//  Get response to 'putCommand()'
-bool TFMPlus::getResponse()
-{
-  uint8_t reply[ 8];                          // Initialize a response frame
-  memset( reply, 0, sizeof( reply));          // Set all bytes of frame to zero
-
-  // Step 1 - read one byte and test for header character
-  if( !readData( reply[ 0])) return false;
-  if( reply[ 0] != 0x5A)
-  {
-    status = HEADER;       // If header not detected...
-    return false;
-  }
-  // Step 2 - read next byte and use as frame length
-  if( !readData( reply[ 1])) return false;
-  for( uint8_t i = 2; i < reply[ 1]; i++)
-  {
-    if( !readData( reply[ i])) return false; // Read the rest of the reply.
-  }
-  
-  // Step 3 - Create a checksum byte and compare
-  // with the last byte of the response frame.
-  if( makeSum( reply) != reply[ reply[ 1] - 1])
-  {
-      status = CHECKSUM;  // If not correct set CHECKSUM
-      return false;       // and return 'false'.
-  }
-  
-  // Step 4 - Interpret different command responses.
-  // Case command number is 2, 10 or 11...
-  if( reply[ 2] == 2 || reply[ 2] == 10 || reply[ 2] == 11)
-  {
-    if( reply[ 3] == 1)        // check PASS/FAIL byte...
-    {
-      status = FAIL;
-      return false;            // then return 'pass'.
-    }
-  }
-  else if( reply[ 2] == 1)     // Case command number is 1...
-  {
-      version[ 0] = reply[5];  //set firmware version.
-      version[ 1] = reply[4];
-      version[ 2] = reply[3];
-  }
-  
-  status = READY;
-  return true;
-}
-
-// Write command data to the device
-void TFMPlus::putCommand( uint8_t *data)
-{
-  while( (*pStream).available()) (*pStream).read();  // flush input buffer
-  (*pStream).flush();                                // flush output buffer
-  for( uint8_t i = 0; i < data[ 1]; i++) (*pStream).write( data[ i]);
-  while( !(*pStream).available());    // wait for serial1 to become available
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 3 - If all okay then interpret the frame data...
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    dist = frame[ 2] + ( frame[ 3] << 8);
+    flux = frame[ 4] + ( frame[ 5] << 8);
+    temp = frame[ 6] + ( frame[ 7] << 8);
+    status = READY;    // set status to READY...
+    return true;       // and return "true".
 }
 
 // Create the proper command byte array, put the command,
 // get a repsonse, and return the status
-bool TFMPlus::buildCommand( uint32_t cmnd, uint32_t param)
+bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
 {
-  uint8_t cmndData[ 8];               // Initialize an 8 byte command array
-  memset( cmndData, 0, 8);            // Clear the array.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 1 - Build the command data to send to the device
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    static uint8_t cmndLen;             // Length of command
+    static uint8_t replyLen;            // Length of command reply data
+    static uint8_t cmndData[ 8];        // 8 byte send command array
+    static uint16_t checkSum;           // Used to calculate the checksum byte
 
-  cmndData[ 0] = 0x5A;                // First byte is the header character.
-  memcpy( &cmndData[1], &cmnd, 3);    // Next three bytes are length, command
-                                      // number and a one byte parameter
-                                      // encoded as a 32 bit unsigned integer.
-  if( cmndData[2] == 3)                 // If the command is to Set Frame Rate...
-  {
-    memcpy( &cmndData[ 3], &param, 2);  // include the 2 byte Frame Rate parameter.
-  }
-  else if( cmndData[2] == 6)            // If the command is to Set Baud Rate...
-  {
-    memcpy( &cmndData[ 3], &param, 4);  // include the 3 byte Baud Rate parameter.
-  }
+    memset( cmndData, 0, 8);            // Clear the send command array.
+    memcpy( &cmndData[0], &cmnd, 4);    // Copy 4 bytes of data: reply length,
+                                        // command length, command number and
+                                        // a one byte parameter, all encoded as
+                                        // a 32 bit unsigned integer.
 
-  cmndData[ cmndData[ 1] - 1] = makeSum( cmndData);  // Put a checksum as last byte of command
+    replyLen = cmndData[ 0];            // Save the first byte as reply length.
+    cmndLen = cmndData[1];              // Save the second byte as command length.
+    cmndData[ 0] = 0x5A;                // Set the first byte to the header character.
 
-//   printData( cmndData, 8);   // for testing puroses
-  putCommand( cmndData);
-  return getResponse();
+    if( cmnd == SET_FRAME_RATE)           // If the command is to Set Frame Rate...
+    {
+      memcpy( &cmndData[ 3], &param, 2);  // add the 2 byte Frame Rate parameter.
+    }
+    else if( cmnd == SET_BAUD_RATE)       // If the command is to Set Baud Rate...
+    {
+      memcpy( &cmndData[ 3], &param, 4);  // add the 3 byte Baud Rate parameter.
+    }
+
+    // Create a checksum.
+    // Add together all bytes but the last...
+    checkSum = 0;
+    for( uint8_t i = 0; i < ( replyLen - 1); i++) checkSum += reply[ i];
+    // and save it as the last byte of command data.
+    cmndData[ cmndLen - 1] = (uint8_t)checkSum;
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 2 - Send the command data to the device
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    while( (*pStream).available()) (*pStream).read();  // flush input buffer
+    (*pStream).flush();                                // flush output buffer
+    for( uint8_t i = 0; i < cmndLen; i++) (*pStream).write( cmndData[ i]);
+
+    // If the command is this one, then we're done.
+    // Escape and call getData() as a response instead.
+    if( cmnd == TRIGGER_DETECTION) return true;
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 3 - Get data back fromn the device.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Set a one second timer to timeout if HEADER never appears
+    // or serial data never becomes available
+    uint32_t serialTimeout = millis() + 1000;
+    //memset( reply, 0, sizeof( reply));   // Set all bytes of reply to zero
+    reply[0] = 0;
+    // Continuously read one byte into the end of the frame buffer
+    // and then left shift the whole buffer until the two HEADER
+    // bytes appear as thte first two bytes of the frame.
+    while( reply[ 0] != 0x5A)
+    {
+        if( (*pStream).available())
+        {
+            // Read one byte into the framebuffer's
+            // last plus one position.
+            reply[ replyLen] = (*pStream).read();
+            // Shift the last nine bytes one byte left.
+            memcpy( reply, reply+1, TFMP_REPLY_SIZE);
+        }
+        // If HEADER or serial data are not available
+        // for more than one second...
+        if( millis() >  serialTimeout)
+        {
+            status = SERIAL;   // then set error...
+            return false;      // and return "false".
+        }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 4 - Perform a checksum test.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Add together all bytes but the last.
+    uint16_t Sum = 0;
+    for( uint8_t i = 0; i < ( replyLen - 1); i++) Sum += reply[ i];
+    //  If the low order byte does not equal the last byte...
+    if( ( uint8_t)Sum != reply[ replyLen - 1])
+    {
+      status = CHECKSUM;  // then set error...
+      return false;       // and return "false."
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 5 - Interpret different command responses.
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if( cmnd == OBTAIN_FIRMWARE_VERSION)
+    {
+        version[ 0] = reply[5];  // set firmware version.
+        version[ 1] = reply[4];
+        version[ 2] = reply[3];
+    }
+    else
+    {
+        if( cmnd == SYSTEM_RESET ||
+            cmnd == RESTORE_FACTORY_SETTINGS ||
+            cmnd == SAVE_SETTINGS )
+        {
+            if( reply[ 3] == 1)      // If PASS/FAIL byte not zero ...
+            {
+                status = FAIL;       // set status 'FAIL'...
+                return false;        // and return 'false'.
+            }
+        }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 6 - Set READY status and go home
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    status = READY;
+    return true;
 }
 
 // - - - - -    For testing purposes    - - - - - -
-// Print the Hex value of each bytye of data
-void TFMPlus::printData( uint8_t *data, uint8_t len)
+// Print status 'READY' or 'Error:'
+void TFMPlus::printStatus( bool isFrameData)
 {
-  printf(" Data:");
-  for( uint8_t i = 0; i < len; i++) printf(" %02x", data[ i]);
-}
-
-void TFMPlus::printStatus()
-{
-  if( status == READY)          Serial.print( " - READY");
-  else
-  {
-    Serial.print(" Error: ");
-    if( status == SERIAL)        Serial.print( "SERIAL");
+    if( isFrameData) printFrame();
+      else printReply();
+    Serial.print(" Status: ");
+    if( status == READY)   Serial.print( "READY");
+    else if( status == SERIAL)   Serial.print( "SERIAL");
     else if( status == HEADER)   Serial.print( "HEADER");
     else if( status == CHECKSUM) Serial.print( "CHECKSUM");
     else if( status == TIMEOUT)  Serial.print( "TIMEOUT");
     else if( status == PASS)  Serial.print( "PASS");
     else if( status == FAIL)  Serial.print( "FAIL");
     else Serial.print( "OTHER");
-//    Serial.println();
+    Serial.println();
+}
+
+// Print the Hex value of each bytye of data
+void TFMPlus::printFrame()
+{
+  printf(" Data:");
+  for( uint8_t i = 0; i < TFMP_FRAME_SIZE; i++)
+  {
+    printf(" %02x", frame[ i]);
+  }
+}
+
+void TFMPlus::printReply()
+{
+  printf(" Data:");
+  for( uint8_t i = 0; i < reply[1]; i++)
+  {
+    printf(" %02x", reply[ i]);
   }
 }

@@ -15,6 +15,12 @@
  *    Example code is updated.
  * v1.1.1 - 14MAR19 - Two commands: RESTORE_FACTORY_SETTINGS
  *    and SAVE_SETTINGS were not defined correctly.
+ * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
+ *    and more robust when serial read skips a byte or fails entirely.
+ * v1.3.1 - 08APR19 - Redefined commands to include response length.
+      **********************     IMPORTANT    ************************
+      ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
+      ****************************************************************
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -32,7 +38,7 @@
  *  Function returns TRUE/FALSE whether completed without error.
  *  Error, if any, is saved as a one byte 'status' code.
  *
- * 'buildCommand( cmnd, param)' sends a 32bit command code (cmnd)
+ * 'sendCommand( cmnd, param)' sends a 32bit command code (cmnd)
  *  and a 32bit parameter value (param). Returns TRUE/FALSE and
  *  sets a one byte status code.
  *  Commands are selected from the library's list of defined commands.
@@ -40,7 +46,6 @@
  *  for safety, they should be chosen from the Library's defined lists.
  *  An incorrect value can render the device uncomminicative.
  *
- * Inspired by the TFMini Arduino Library of Peter Jansen (11 DEC 2017)
  */
 
 #ifndef TFMPLUS_H       // Guard to compile only once
@@ -49,13 +54,12 @@
 #include <Arduino.h>    // Always include this. It is important.
 
 // Defines
-
-// The output data frame size is 9 bytes
-#define TFMP_FRAME_SIZE           9
+#define TFMP_FRAME_SIZE         9   // The output data frame size is 9 bytes
+#define TFMP_REPLY_SIZE         8   // The longest co0mmand reply is 8 bytes
 
 // Timeout Limits for various functions
 #define TFMP_MAX_READS           20   // readData() sets SERIAL error
-#define MAX_BYTES_BEFORE_HEADER  10   // getData() sets HEADER error
+#define MAX_BYTES_BEFORE_HEADER  20   // getData() sets HEADER error
 #define MAX_ATTEMPTS_TO_MEASURE  20
 
 // System Error Status
@@ -79,21 +83,24 @@
   0x5A   Length  Cmd ID  Payload if any   Checksum
  - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-// Commands: one byte payload, command number, command length
-#define    OBTAIN_FIRMWARE_VERSION    0x000104   // returns 3 byte firmware version
-#define    TRIGGER_DETECTION          0x000404   // must set frame rate to zero first
-                                                 // returns a 9 byte data frame
-#define    SYSTEM_RESET               0x000204   // returns a 1 byte pass/fail (0/1)
-#define    RESTORE_FACTORY_SETTINGS   0x001004   //           "
-#define    SAVE_SETTINGS              0x001104   // must follow every command to modify parameters
-                                                 // also returns a 1 byte pass/fail (0/1)
-#define    SET_FRAME_RATE             0x000306   // returns echo of command
-#define    SET_BAUD_RATE              0x000608   //           "
-#define    STANDARD_FORMAT_CM         0x010505   //           "
-#define    PIXHAWK_FORMAT             0x020505   //           "
-#define    STANDARD_FORMAT_MM         0x060505   //           "
-#define    ENABLE_OUTPUT              0x000705   //           "
-#define    DISABLE_OUTPUT             0x010705   //           "
+// Command definition format:
+// 0x     00       00       00       00
+//     one byte  command  command   reply
+//     payload   number   length    length
+#define    OBTAIN_FIRMWARE_VERSION    0x00010407   // returns 3 byte firmware version
+#define    TRIGGER_DETECTION          0x00040400   // must set frame rate to zero first
+                                                   // returns a 9 byte data frame
+#define    SYSTEM_RESET               0x00020405   // returns a 1 byte pass/fail (0/1)
+#define    RESTORE_FACTORY_SETTINGS   0x00100405   //           "
+#define    SAVE_SETTINGS              0x00110405   // must follow every command to modify parameters
+                                                   // also returns a 1 byte pass/fail (0/1)
+#define    SET_FRAME_RATE             0x00030606   // returns echo of command
+#define    SET_BAUD_RATE              0x00060808   //           "
+#define    STANDARD_FORMAT_CM         0x01050505   //           "
+#define    PIXHAWK_FORMAT             0x02050505   //           "
+#define    STANDARD_FORMAT_MM         0x06050505   //           "
+#define    ENABLE_OUTPUT              0x00070505   //           "
+#define    DISABLE_OUTPUT             0x01070505   //           "
 
 // Command Parameters
 #define    BAUD_9600          0x002580   // expression of baud rate
@@ -129,24 +136,30 @@ class TFMPlus
     uint8_t version[ 3];   // save firmware version
     uint8_t status;        // save system error status
 
-    bool begin( Stream *streamPtr);   // Returns T/F whether stream available
-                                      // and set error status if not.
+    // Return T/F whether serial data available, set error status if not.
+    bool begin( Stream *streamPtr);
+    // Read device data and pass back three values
     bool getData( uint16_t &dist, uint16_t &flux, uint16_t &temp);
-    bool buildCommand( uint32_t cmnd, uint32_t param);
-    // for testing purposes
-    void printStatus();
+    // Build and send a command, and check response
+    bool sendCommand( uint32_t cmnd, uint32_t param);
+
+    // for testing purposes, print frame or reply data and status
+    void printStatus( bool isFrameData);
 
   private:
-    Stream* pStream;    // pointer to the device serial stream
+    Stream* pStream;      // pointer to the device serial stream
 
-    bool readData( uint8_t &rdByte);        // Try TFMP_MAX_READS times to
-                                            // read one byte of serial data.
-    uint8_t makeSum( uint8_t *data);        // make a checksum byte from *data
-    void putCommand( uint8_t *data);
-    bool getResponse();
-    // for testing - print *data as hex characters
-    void printData( uint8_t *data, uint8_t len);
+    // The data buffers are one byte longer than necessary
+    // becasue we read one byte into the last position, then shift
+    // the whole mess left by one position after each read.
+    uint8_t frame[ TFMP_FRAME_SIZE + 1];
+    uint8_t reply[ TFMP_REPLY_SIZE + 1];
+    
+    //uint8_t makeSum( uint8_t *data);   // make a checksum byte from *data
 
+    // for testing - print frame or reply data as hex characters
+    void printFrame();
+    void printReply();
 };
 
 #endif
