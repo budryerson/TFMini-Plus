@@ -26,4 +26,7 @@ The 'sendCommand( cmnd, param)' function sends a 32bit command and a 32bit param
 
 Any change of device settings (frame rate or baud rate) must be followed by a SAVE_SETTINGS command or the changed values will be lost when the power is removed.
 
+Benewake is not forthcoming about the internals of the device, however they did share this.
+>Some commands that modify internal parameters are processed within 1ms. Some commands require the MCU to communicate with other chips may take several ms. And some commands, such as saving configuration and restoring the factory need to erase the FLASH of the MCU, which may take several hundred ms.
+
 An example Arduino sketch "TFMP_example.ino" is included.
