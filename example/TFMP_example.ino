@@ -1,7 +1,7 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29 JAN 2019
- * Last work: 08 APR 2019
+ * Last work: 11 APR 2019
  *
  * Description: Arduino sketch to test the Benewake TFMini Plus
  * time-of-flight Lidar ranging sensor using the TFMPlus library.
@@ -13,9 +13,9 @@
  *   Signal strength in arbitrary units,
  *   and an encoded number for Temperature in degrees centigrade.
 
-      **********************     IMPORTANT    ************************
-      ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
-      ****************************************************************
+   **********************     IMPORTANT    ************************
+   ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
+   ****************************************************************
 
  * Use the 'sendCommand' to send commands and return a status code.
  * Commands are selected from the library's list of defined commands.
@@ -24,7 +24,7 @@
  *
  */
 
-#include <TFMPlus.h>  // Add the TFMini Plus Library
+#include <TFMPlus.h>  // Include TFMini Plus Library v1.3.2
 TFMPlus tfmP;         // Create a TFMini Plus object
 
 #include "printf.h"
@@ -37,14 +37,13 @@ uint16_t tfFlux;       // Luminous flux or intensity of return signal
 uint16_t tfTemp;       // Temperature in degrees Centigrade (coded)
 uint16_t loopCount;    // Loop counter (1-20)
 
-/*  - - -   A couple of useful Lidar commands    - - -  /
-/ - - -   Using the 'sendCommand()' function:   - - -  */
+/*  - - - - -  A few useful Lidar commands    - - - - - */
 
-// Try five times to get the firmware version number
+// Try three times to get the firmware version number
 // which is saved as 'tfmp.version', a three byte array.
 void firmwareVersion()
 {
-    for( uint8_t fvi = 1; fvi < 6; ++fvi)
+    for( uint8_t fvi = 1; fvi < 4; ++fvi)
     {
         if( tfmP.sendCommand( OBTAIN_FIRMWARE_VERSION, 0))
         {
