@@ -20,11 +20,11 @@ Upon power-up it will immediately begin to send measurement data.
 
 The 'begin()' function passes a serial stream to the library and returns a boolean value (TRUE/FALSE) whether serial data is available. The function also sets a public one byte status/error code. Status codes are defined within the library.
 
-The 'getData( dist, flux, temp)' function passes back three measurement values.  It returns a boolean value and also sets the status byte.  Fewer errors occur if the rate of data sampling roughly matches the device's output data frame rate.
+The 'getData( dist, flux, temp)' function passes back three measurement values.  It returns a boolean value and also sets the status byte.  If no serial data or no 'header' code are received within 1 second, the command returns an error.  Version 1.3.2 flushes the serial buffer before reading, which improves performance asynchronous code.
 
 The 'sendCommand( cmnd, param)' function sends a 32bit command and a 32bit parameter to the device. It returns a boolean value and also sets the status byte.  A command (cmnd) must be selected from the library's list of twelve defined commands. A parameter (param) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
 
-Any change of device settings (frame rate or baud rate) must be followed by a SAVE_SETTINGS command or the changed values will be lost when the power is removed.
+Any change of device settings (frame rate or baud rate) must be followed by a SAVE_SETTINGS command or the changed values will be lost when power is removed.  SYSTEM_RESET and RESTORE_FACTORY_SETTINGS do not require a SAVE_SETTINGS command.
 
 Benewake is not forthcoming about the internals of the device, however they did share this.
 >Some commands that modify internal parameters are processed within 1ms. Some commands require the MCU to communicate with other chips may take several ms. And some commands, such as saving configuration and restoring the factory need to erase the FLASH of the MCU, which may take several hundred ms.
