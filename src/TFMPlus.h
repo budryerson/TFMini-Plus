@@ -18,9 +18,12 @@
  * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
  *    and more robust when serial read skips a byte or fails entirely.
  * v1.3.1 - 08APR19 - Redefined commands to include response length.
-      **********************     IMPORTANT    ************************
-      ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
-      ****************************************************************
+   **********************     IMPORTANT    ************************
+   ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
+   ****************************************************************
+ * v.1.3.2 - Added a line to getData() to flush the serial buffer of
+ *      all but last frame of data before reading.  This does not
+ *      effect usage, but will ensure that the latest data is read.
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning

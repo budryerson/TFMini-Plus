@@ -18,9 +18,12 @@
  * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
  *    and more robust when serial read skips a byte or fails entirely.
  * v1.3.1 - 08APR19 - Redefined commands to include response length
-      **********************     IMPORTANT    ************************
-      ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
-      ****************************************************************
+   **********************     IMPORTANT    ************************
+   ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
+   ****************************************************************
+ * v.1.3.2 - Added a line to getData() to flush the serial buffer
+ *      of all but last frame of data before reading.  This does not
+ *      effect usage, but will ensure that the latest data is read.
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -77,13 +80,17 @@ bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 1 - Get data from the device.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Set a one second timer to timeout if HEADER never appears
-    // or serial data never becomes available
+    // Set timer to one second timeout if HEADER never appears
+    // or serial data never becomes available.
     uint32_t serialTimeout = millis() + 1000;
-    frame[ 0] = 0;         // clear just the first header byte
+    
+    // Flush all but last frame of data from serial buffer.
+    while( (*pStream).available() > TFMP_FRAME_SIZE) (*pStream).read();
+    
     // Continuously read one byte into the end of the frame buffer
     // and then left shift the whole buffer until the two HEADER
-    // bytes appear as thte first two bytes of the frame.
+    // bytes appear as the first two bytes of the frame.
+    frame[ 0] = 0;         // clear just the first header byte    
     while( (frame[ 0] != 0x59) || (frame[ 1] != 0x59))
     {
         if( (*pStream).available())
