@@ -1,29 +1,34 @@
 /* File Name: TFMPlus.cpp
+ * Version: 1.3.3
  * Described: Arduino Library for the Benewake TFMini Plus Lidar sensor
  *            The TFMini Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
  * Developer: Bud Ryerson
  * Inception: v0.2.0 - 31 JAN 2019
- *            v1.0.0 - 25 FEB 2019 - Initial release
- * Last work:
+ * v1.0.0 - 25FEB19 - Initial release
  * v1.0.1 - 09MAR19 - 'build()' function always returned TRUE.
- *    Corrected to return FALSE if serial data is not available.
- *    And other minor corrections to textual descriptionms.
+      Corrected to return FALSE if serial data is not available.
+      And other minor corrections to textual descriptionms.
  * v1.1.0 - 13MAR19 - To simplify, all interface functions now
- *    return boolean.  Status code is still set and can be read.
- *    'testSum()' is deleted and 'makeSum()' is used instead.
- *    Example code is updated.
+      return boolean.  Status code is still set and can be read.
+      'testSum()' is deleted and 'makeSum()' is used instead.
+      Example code is updated.
  * v1.1.1 - 14MAR19 - Two commands: RESTORE_FACTORY_SETTINGS
- *    and SAVE_SETTINGS were not defined correctly.
+      and SAVE_SETTINGS were not defined correctly.
  * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
- *    and more robust when serial read skips a byte or fails entirely.
+      and more robust when serial read skips a byte or fails entirely.
  * v1.3.1 - 08APR19 - Redefined commands to include response length
    **********************     IMPORTANT    ************************
    ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
    ****************************************************************
  * v.1.3.2 - Added a line to getData() to flush the serial buffer
- *      of all but last frame of data before reading.  This does not
- *      effect usage, but will ensure that the latest data is read.
+        of all but last frame of data before reading.  This does not
+        effect usage, but will ensure that the latest data is read.
+ * v.1.3.3 - 16MAY19 - Changed 'sendCommand()' to add a second byte,
+        to the HEADER recognition routine, the reply length byte.
+        This makes recognition of the command reply more robust.
+        Cleared command reply buffer out completely before reading.
+        Added but did not iumplement some I2C command codes.
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -91,7 +96,7 @@ bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
     // and then left shift the whole buffer until the two HEADER
     // bytes appear as the first two bytes of the frame.
     frame[ 0] = 0;         // clear just the first header byte    
-    while( (frame[ 0] != 0x59) || (frame[ 1] != 0x59))
+    while( ( frame[ 0] != 0x59) || ( frame[ 1] != 0x59))
     {
         if( (*pStream).available())
         {
@@ -188,12 +193,11 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     // Set a one second timer to timeout if HEADER never appears
     // or serial data never becomes available
     uint32_t serialTimeout = millis() + 1000;
-    //memset( reply, 0, sizeof( reply));   // Set all bytes of reply to zero
-    reply[0] = 0;
-    // Continuously read one byte into the end of the frame buffer
-    // and then left shift the whole buffer until the two HEADER
-    // bytes appear as thte first two bytes of the frame.
-    while( reply[ 0] != 0x5A)
+    memset( reply, 0, sizeof( reply));   // Set all bytes of reply to zero
+    // Continuously read one byte into the far end of the frame buffer
+    // and then left shift the whole buffer until the HEADER byte
+    // and reply length byte appear as thte first two bytes of the reply.
+    while( ( reply[ 0] != 0x5A) || ( reply[ 1] != replyLen))
     {
         if( (*pStream).available())
         {

@@ -1,29 +1,34 @@
 /* File Name: TFMPlus.h
+ * Version: 1.3.3
  * Described: Arduino Library for the Benewake TFMini Plus Lidar sensor
  *            The TFMini Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
  * Developer: Bud Ryerson
  * Inception: v0.2.0 - 31 JAN 2019 
- *            v1.0.0 - 25 FEB 2019 - Initial release
- * Last work:
+ * v1.0.0 - 25FEB19 - Initial release
  * v1.0.1 - 09MAR19 - 'build()' function always returned TRUE.
- *    Corrected to return FALSE if serial data is not available.
- *    And other minor corrections to textual descriptionms.
+      Corrected to return FALSE if serial data is not available.
+      And other minor corrections to textual descriptionms.
  * v1.1.0 - 13MAR19 - To simplify, all interface functions now
- *    return boolean.  Status code is still set and can be read.
- *    'testSum()' is deleted and 'makeSum()' is used instead.
- *    Example code is updated.
+      return boolean.  Status code is still set and can be read.
+      'testSum()' is deleted and 'makeSum()' is used instead.
+      Example code is updated.
  * v1.1.1 - 14MAR19 - Two commands: RESTORE_FACTORY_SETTINGS
- *    and SAVE_SETTINGS were not defined correctly.
+      and SAVE_SETTINGS were not defined correctly.
  * v1.2.1 - 02APR19 - Rewrote 'getData()' function to make it faster
- *    and more robust when serial read skips a byte or fails entirely.
- * v1.3.1 - 08APR19 - Redefined commands to include response length.
+      and more robust when serial read skips a byte or fails entirely.
+ * v1.3.1 - 08APR19 - Redefined commands to include response length
    **********************     IMPORTANT    ************************
    ****  Changed name of 'buildCommand()' to 'sendCommand()'.  ****
    ****************************************************************
- * v.1.3.2 - Added a line to getData() to flush the serial buffer of
- *      all but last frame of data before reading.  This does not
- *      effect usage, but will ensure that the latest data is read.
+ * v.1.3.2 - Added a line to getData() to flush the serial buffer
+        of all but last frame of data before reading.  This does not
+        effect usage, but will ensure that the latest data is read.
+ * v.1.3.3 - 16MAY19 - Changed 'sendCommand()' to add a second byte,
+        to the HEADER recognition routine, the reply length byte.
+        This makes recognition of the command reply more robust.
+        Cleared command reply buffer out completely before reading.
+        Added but did not iumplement some I2C command codes.
  *
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -95,15 +100,27 @@
                                                    // returns a 9 byte data frame
 #define    SYSTEM_RESET               0x00020405   // returns a 1 byte pass/fail (0/1)
 #define    RESTORE_FACTORY_SETTINGS   0x00100405   //           "
-#define    SAVE_SETTINGS              0x00110405   // must follow every command to modify parameters
+#define    SAVE_SETTINGS              0x00110405   // This command must follow every command
+                                                   // that modifies device parameters. It
                                                    // also returns a 1 byte pass/fail (0/1)
-#define    SET_FRAME_RATE             0x00030606   // returns echo of command
-#define    SET_BAUD_RATE              0x00060808   //           "
+                                                   
+#define    SET_FRAME_RATE             0x00030606   // These commands each return
+#define    SET_BAUD_RATE              0x00060808   // an echo of the command
 #define    STANDARD_FORMAT_CM         0x01050505   //           "
 #define    PIXHAWK_FORMAT             0x02050505   //           "
 #define    STANDARD_FORMAT_MM         0x06050505   //           "
 #define    ENABLE_OUTPUT              0x00070505   //           "
 #define    DISABLE_OUTPUT             0x01070505   //           "
+
+#define    SET_MODE_SERIAL            0x000A0500   // default is Serial (UART)
+#define    SET_MODE_IIC               0x010A0500   //
+#define    SET_IIC_ADDRESS            0x100B0505   // default I2C Address is 0x10
+#define    IIC_DATA_FORMAT_CM         0x01000500   // returns a 9 byte data frame
+#define    IIC_DATA_FORMAT_MM         0x06000500   //           "
+
+#define    IO_MODE_STANDARD           0x003B0900   // default is standard data mode
+#define    IO_MODE_HILO               0x013B0900   // I/O, near high and far low
+#define    IO_MODE_LOHI               0x023B0900   // I/O, near low and far high
 
 // Command Parameters
 #define    BAUD_9600          0x002580   // expression of baud rate
