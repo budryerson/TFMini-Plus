@@ -5,7 +5,7 @@ The Benewake TFMini-Plus is a unique product and not merely an enhanced version 
 
 The Plus features a UART serial communication interface. The serial baud rate is programmable.
 <br />Only these rates are supported: 9600, 14400, 19200, 56000, 115200, 460800, and 921600.
-(Benewake has recently released a version of the device with an I2C interface. This library currently supports only the UART/serial version of the device.)
+<br>(Benewake has recently released a version of the device with an I2C interface. This library currently supports only the UART/serial version of the device.)
 
 Data output rates are programmable up to 10KHz, but the internal measuring frame rate is fixed at 4KHz.
 <br />"Standard" output rates are: 1, 2, 5, 10, 20, 25, 50, 100, 125, 200, 250, 500, and 1000Hz.
