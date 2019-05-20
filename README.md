@@ -5,7 +5,7 @@ The Benewake TFMini-Plus is a unique product and not an enhanced version of the 
 
 Benewake has released an I2C version of this device. This library supports only the serial (UART) version.  I2C mode is not supported in this version of the library.  (We're working on it.)
 
-The code for this library is richly commented to assist with understandiong its functions and in problem solving.
+The code for this library is richly commented to assist with understanding its functions and in problem solving.
 
 The Plus features a UART serial communication interface. The serial baud rate is programmable.
 <br />Only these rates are supported: 9600, 14400, 19200, 56000, 115200, 460800, and 921600.
