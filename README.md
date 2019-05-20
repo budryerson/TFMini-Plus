@@ -31,4 +31,4 @@ Benewake is not forthcoming about the internals of the device, however they did 
 >Some commands that modify internal parameters are processed within 1ms. Some commands require the MCU to communicate with other chips may take several ms. And some commands, such as saving configuration and restoring the factory need to erase the FLASH of the MCU, which may take several hundred ms.
 
 An Arduino sketch "TFMP_example.ino" is included in example.
-Recent copies of the manufacturer's Datasheet and Product Manual are included in documents.
+<br>Recent copies of the manufacturer's Datasheet and Product Manual are included in documents.
