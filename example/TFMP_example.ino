@@ -1,7 +1,7 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29 JAN 2019
- * Last work: 11 APR 2019
+ * Last work: 20 MAY 2019
  *
  * Description: Arduino sketch to test the Benewake TFMini Plus
  * time-of-flight Lidar ranging sensor using the TFMPlus library.
@@ -24,13 +24,13 @@
  *
  */
 
-#include <TFMPlus.h>  // Include TFMini Plus Library v1.3.2
+#include <TFMPlus.h>  // Include TFMini Plus Library v1.3.3
 TFMPlus tfmP;         // Create a TFMini Plus object
 
-#include "printf.h"
+#include "printf.h"   // May not work corrrectly with Intel devices
 
-//#include <SoftwareSerial.h>      // alternative software serial library
-//SoftwareSerial mySerial(10, 11); // RX, TX Pins
+//#include <SoftwareSerial.h>       // alternative software serial library
+//SoftwareSerial mySerial(10, 11);  // Choose the correct RX, TX Pins
 
 uint16_t tfDist;       // Distance measurement in centimeters (default)
 uint16_t tfFlux;       // Luminous flux or intensity of return signal
@@ -114,18 +114,20 @@ void setup()
     Serial.begin( 115200);   // Intialize terminal serial port
     delay(20);               // Give port time to initalize
     printf_begin();          // Initialize printf.
-    printf("\r\nTFMPlus Device Library - 09MAR2019\r\n");  // say 'hello'
+    printf("\r\nTFMPlus Device Library - 20MAY2019\r\n");  // say 'hello'
 
     Serial2.begin( 115200);  // Initialize TFMPLus device serial port.
     delay(20);               // Give port time to initalize
     tfmP.begin( &Serial2);   // Initialize device library object and...
                              // pass device serial port to the object.
 
-    firmwareVersion();       // send a few commands
+    // Send commands to device during setup.
+    firmwareVersion();
     frameRate(20);
     //saveSettings();
     //factoryReset();
 
+    // Initialize the variables for this example
     loopCount = 0;         // Reset loop counter.
     tfDist = 0;            // Clear device data variables.
     tfFlux = 0;
@@ -137,9 +139,6 @@ void setup()
 // Use the 'getData' function to pass back device data.
 void loop()
 {
-  //if( tfmP.sendCommand( TRIGGER_DETECTION, 0));
-  //delay(20);
-
   // 1. On each loop, try up to five tries to get a good data frame.
   for( uint8_t fvi = 1; fvi < 6; ++fvi)
   {
@@ -172,6 +171,7 @@ void loop()
     loopCount = 0;                   // Reset loop counter.
   }
 
+  // 3. Finish up and advance the loop counter
   printf("\r\n");  // Send CR/LF to terminal
   loopCount++;
   delay(10);       // Delay to match the 100Hz data frame rate.
