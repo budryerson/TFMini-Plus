@@ -6,18 +6,18 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-TFMPlus KEYWORD1
+TFMPlus	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-begin         KEYWORD2
-getData       KEYWORD2
-sendCommand   KEYWORD2
-printStatus		KEYWORD2
-status        KEYWORD2
-version       KEYWORD2
+begin	KEYWORD2
+getData	KEYWORD2
+sendCommand	KEYWORD2
+printStatus	KEYWORD2
+status	KEYWORD2
+version	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
