@@ -30,6 +30,8 @@
         Zeroed out 'data frame' snd  'command reply' buffer arrays
         completely before reading from device.  Added but did not
         implement some I2C command codes.
+ * v.1.3.4 - 07JUN19 - Added 'TFMP_' to all error status defines.
+        The ubiquitous 'Arduino.h' also contains a 'SERIAL' define.
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -72,12 +74,12 @@ bool TFMPlus::begin(Stream *streamPtr)
     delay( 10);                   // Delay for device data in serial buffer.
     if( (*pStream).available())   // If data present...
     {
-        status = READY;           // set status to READY
+        status = TFMP_READY;      // set status to READY
         return true;              // and return TRUE.
     }
     else                          // Otherwise...
     {
-         status = SERIAL;         // set status to SERIAL error
+         status = TFMP_SERIAL;    // set status to SERIAL error
          return false;            // and return false.
     }
 }
@@ -116,8 +118,8 @@ bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
         // after more than one second...
         if( millis() >  serialTimeout)
         {
-            status = SERIAL;   // then set error...
-            return false;      // and return "false".
+            status = TFMP_SERIAL;   // then set error...
+            return false;           // and return "false".
         }
     }
 
@@ -130,8 +132,8 @@ bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
     //  If the low order byte does not equal the last byte...
     if( ( uint8_t)chkSum != frame[ TFMP_FRAME_SIZE - 1])
     {
-      status = CHECKSUM;  // then set error...
-      return false;       // and return "false."
+      status = TFMP_CHECKSUM;  // then set error...
+      return false;            // and return "false."
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -140,8 +142,8 @@ bool TFMPlus::getData( uint16_t &dist, uint16_t &flux, uint16_t &temp)
     dist = frame[ 2] + ( frame[ 3] << 8);
     flux = frame[ 4] + ( frame[ 5] << 8);
     temp = frame[ 6] + ( frame[ 7] << 8);
-    status = READY;    // set status to READY...
-    return true;       // and return "true".
+    status = TFMP_READY;   // set status to READY...
+    return true;           // and return "true".
 }
 
 // Create the proper command byte array, put the command,
@@ -222,8 +224,8 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
         // after more than one second...
         if( millis() >  serialTimeout)
         {
-            status = SERIAL;   // then set error...
-            return false;      // and return "false".
+            status = TFMP_SERIAL;  // then set error...
+            return false;          // and return "false".
         }
     }
 
@@ -236,7 +238,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     //  If the low order byte of the Sum does not equal the last byte...
     if( ( uint8_t)chkSum != reply[ replyLen - 1])
     {
-      status = CHECKSUM;  // then set error...
+      status = TFMP_CHECKSUM;  // then set error...
       return false;       // and return "false."
     }
 
@@ -257,7 +259,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
         {
             if( reply[ 3] == 1)      // If PASS/FAIL byte not zero ...
             {
-                status = FAIL;       // set status 'FAIL'...
+                status = TFMP_FAIL;  // set status 'FAIL'...
                 return false;        // and return 'false'.
             }
         }
@@ -266,7 +268,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 6 - Set READY status and go home
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    status = READY;
+    status = TFMP_READY;
     return true;
 }
 
@@ -277,13 +279,13 @@ void TFMPlus::printStatus( bool isFrameData)
     if( isFrameData) printFrame();
       else printReply();
     Serial.print(" Status: ");
-    if( status == READY)   Serial.print( "READY");
-    else if( status == SERIAL)   Serial.print( "SERIAL");
-    else if( status == HEADER)   Serial.print( "HEADER");
-    else if( status == CHECKSUM) Serial.print( "CHECKSUM");
-    else if( status == TIMEOUT)  Serial.print( "TIMEOUT");
-    else if( status == PASS)  Serial.print( "PASS");
-    else if( status == FAIL)  Serial.print( "FAIL");
+    if( status == TFMP_READY)   Serial.print( "READY");
+    else if( status == TFMP_SERIAL)   Serial.print( "SERIAL");
+    else if( status == TFMP_HEADER)   Serial.print( "HEADER");
+    else if( status == TFMP_CHECKSUM) Serial.print( "CHECKSUM");
+    else if( status == TFMP_TIMEOUT)  Serial.print( "TIMEOUT");
+    else if( status == TFMP_PASS)  Serial.print( "PASS");
+    else if( status == TFMP_FAIL)  Serial.print( "FAIL");
     else Serial.print( "OTHER");
     Serial.println();
 }

@@ -29,6 +29,8 @@
         Zeroed out 'data frame' snd  'command reply' buffer arrays
         completely before reading from device.  Added but did not
         implement some I2C command codes.
+ * v.1.3.4 - 07JUN19 - Added 'TFMP_' to all error status defines.
+        The ubiquitous 'Arduino.h' also contains a 'SERIAL' define.
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -73,14 +75,14 @@
 #define TFMPI2C_ADDR         0x10  //  default I2C address
 
 // System Error Status
-#define READY                 0
-#define SERIAL                1
-#define HEADER                2
-#define CHECKSUM              3
-#define TIMEOUT               4
-#define PASS                  5
-#define FAIL                  6
-#define MEASUREMENT_OK       10
+#define TFMP_READY           0
+#define TFMP_SERIAL          1
+#define TFMP_HEADER          2
+#define TFMP_CHECKSUM        3
+#define TFMP_TIMEOUT         4
+#define TFMP_PASS            5
+#define TFMP_FAIL            6
+#define TFMP_MEASURE        10
 
 /* - - - - - - - - -  TFMini Plus  - - - - - - - - -
   Data Frame format:
