@@ -1,7 +1,7 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29 JAN 2019
- * Last work: 20 MAY 2019
+ * Last work: 07 JUN 2019
  *
  * Description: Arduino sketch to test the Benewake TFMini Plus
  * time-of-flight Lidar ranging sensor using the TFMPlus library.
@@ -24,7 +24,7 @@
  *
  */
 
-#include <TFMPlus.h>  // Include TFMini Plus Library v1.3.3
+#include <TFMPlus.h>  // Include TFMini Plus Library v1.3.4
 TFMPlus tfmP;         // Create a TFMini Plus object
 
 #include "printf.h"   // May not work corrrectly with Intel devices
@@ -114,7 +114,7 @@ void setup()
     Serial.begin( 115200);   // Intialize terminal serial port
     delay(20);               // Give port time to initalize
     printf_begin();          // Initialize printf.
-    printf("\r\nTFMPlus Device Library - 20MAY2019\r\n");  // say 'hello'
+    printf("\r\nTFMPlus Library Example - 07JUN2019\r\n");  // say 'hello'
 
     Serial2.begin( 115200);  // Initialize TFMPLus device serial port.
     delay(20);               // Give port time to initalize
