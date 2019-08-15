@@ -41,7 +41,7 @@ All of the code for this library is richly commented to assist with understandin
 ### Some thoughts about the I2C version of the device
 While this device can be configured to use an I2C communication protocol instead of the default, UART (serial) protocol, the modifying command must be sent using the default, UART inteface.  Therefore, the decision to use the I2C interface should be made 'offline,' prior to the device's service installation, by using either this library or the serial GUI test application supplied by the manufacturer.
 
-The I2C address for the device is user-programable.  The default address is `0x10`.  If a different adress is desired, a `SET_I2C_ADDRESS` command should be sent first, before sending the `SET_I2C_MODE` command to modify the communication protocol.  It seems that the device will save communication interface changes and will remain in I2C mode even after power has been removed and restored.
+The I2C address for the device is user-programable.  The default address is `0x10`.  If a different address is desired, a `SET_I2C_ADDRESS` command should be sent first, before sending the `SET_I2C_MODE` command to modify the communication protocol.  It seems that the device will save communication interface changes and will remain in I2C mode even after power has been removed and restored.
 
 Be aware that a `RESTORE_FACTORY_SETTINGS` command sent using the I2C protocol may restore the device to its default, UART communication protocol, which will make further I2C communication impossible.
 
