@@ -22,7 +22,7 @@ The default TFMini-Plus communication interface is UART (serial); the default ba
 At the moment, this library supports only the default, serial (UART) communication interface.  Please read more below about using the I2C version of the device.
 
 ### Arduino Library Commands
-`begin()` passes a serial stream to the library and returns a boolean value indicating whether serial data is available. The function also sets a `public` one-byte status or error code.  Status codes are defined in the library's header file.
+`begin()` passes a serial stream to the library and returns a boolean value indicating whether serial data is available. The function also sets a public one-byte `status` or error code.  Status codes are defined in the library's header file.
 
 `getData( dist, flux, temp)` passes back three measurement values.  It sets the status/error code byte and returns a boolean 'pass/fail' value.  If no serial data or no header sequence (`0x5959`) is received within one (1) second, the function sets an appropriate error code and fails.  The serial buffer is flushed before reading and the `frame` and `reply` data arrays are zeroed out to delete any residual data.  Given the asynchronous nature of the device, flushing helps with valid data recognition and error discrimination.
 
