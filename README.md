@@ -15,7 +15,7 @@ Device data-frame output rates are programmable up to 10KHz, but the internal me
 The default format for each frame of data consists of three 16-bit measurement values:
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters. Range: 0 - 1200
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Strength (voltage) or quality of returned signal in arbitrary units. Range: 0 - 65535
-<br />&nbsp;&nbsp;&#9679;&nbsp;  Coded temperature of the device, library-translated to °C or °F
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device in code. Range: -25°C to 125°C
 
 The default TFMini-Plus communication interface is UART (serial); the default baud-rate is 115200 and the default data frame-rate is 100Hz.  Upon power-up in serial mode, the device will immediately start sending frames of measurement data.
 
