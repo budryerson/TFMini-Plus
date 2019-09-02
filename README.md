@@ -39,18 +39,18 @@ An Arduino sketch "TFMP_example.ino" is included in example.
 All of the code for this library is richly commented to assist with understanding and in problem solving.
 
 ### Some thoughts about the I2C version of the device
-The I2C interface should have been a great improvement over the asynchronous UART protocol, but there appears to be a limitation to the sampling rate of the device in I2C mode.  Recently, Benewake sent me this significant complication:
+According to Benewake:
 >1- the measuring frequency of the module should be 2.5 times larger than the IIC reading frquency.
 <br />2- the iic reading frequency should not exceed 100hz<br />
 
-So keep that in mind while you consider using the I2C interface.  And let me know if you understand why.
+Because the Data Frame Rate is limited to 1000Hz, this implies a 400Hz data sampling limit in I2C mode. Benewake does not say why; but keep that limitation in mind when you consider using the I2C interface.
 
 The command to re-configure the device to the I2C communication protocol instead of the default, UART (serial) protocol must be sent using the UART inteface.  Therefore, the decision to set the I2C interface should be made prior to the device's service installation, either by using this library or the serial GUI test application supplied by the manufacturer.
 
-Ths device functions only as an I2C slave device.  Its address is user-programable in the range of `0x01` to `0x7F`.  The default address is `0x10`.  If a different address is desired, the `SET_I2C_ADDRESS` command and parameter can be sent.
+The device functions as an I2C slave device.  Its address is user-programable by sending the `SET_I2C_ADDRESS` command and a parameter in the range of `0x01` to `0x7F`. The new address will not take effect until a `SAVE_SETTINGS` command is sent. The default address is `0x10`. 
 
-The `SET_I2C_MODE` command does not require a subsequent `SAVE_SETTINGS` command.  Once set, it appears that the device will remain in I2C mode even after power has been removed and restored.  Apparently even a `RESTORE_FACTORY_SETTINGS` command will not restore the device to its default, UART communication interface mode.  It seems that the only way to get back to serial mode is with the `SET_SERIAL_MODE` command.
+The `SET_I2C_MODE` command does not require a subsequent `SAVE_SETTINGS` command.  Once set, it appears that the device will remain in I2C mode even after power has been removed and restored.  Even a `RESTORE_FACTORY_SETTINGS` command will not restore the device to its default, UART communication interface mode.  The only way to return to serial mode is with the `SET_SERIAL_MODE` command.
 
-A `SET_IO_MODE_HILO` or `SET_IO_MODE_LOHI` command sent while in I2C mode is likely to disable all further I2C communication. I strongly  recommend that **communication be reset to UART before any I/O mode command is sent** to the device.
+If serial communication is briefly neccessary, for example a firmware update, the device will start up and remain in UART mode for about ten seconds after the initial application of power.
 
-I2C and I/O modes are not yet supported in this version of the library.  They are coming very soon.  Please do not attempt to use the I2C and I/O commands that are defined in this library's header file at this time.
+I2C and I/O modes are not yet supported in this version of the library.  They are coming soon.  Please do not attempt to use the I2C and I/O commands that are defined in this library's header file at this time.
