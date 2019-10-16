@@ -13,7 +13,7 @@ Device data-frame output rates are programmable up to 10KHz, but the internal me
 <br />If the output rate is set to 0 (zero), single data frames can be triggered by using the `TRIGGER_DETECTION` command.
 
 The default format for each frame of data consists of three 16-bit measurement values:
-<br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters. Range: 0 - 1200
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters. Range: 10 - 1200
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Strength (voltage) or quality of returned signal in arbitrary units. Range: 0 - 65535
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device in code. Range: -25°C to 125°C
 
