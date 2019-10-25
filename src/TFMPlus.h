@@ -1,5 +1,5 @@
 /* File Name: TFMPlus.h
- * Version: 1.3.3
+ * Version: 1.3.5
  * Described: Arduino Library for the Benewake TFMini-Plus Lidar sensor
  *            The TFMini-Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
@@ -31,6 +31,8 @@
         implement some I2C command codes.
  * v.1.3.4 - 07JUN19 - Added 'TFMP_' to all error status defines.
         The ubiquitous 'Arduino.h' also contains a 'SERIAL' define.
+ * v.1.3.5 - 25OCT19 - Added missing underscore to paramter:
+        #define    BAUD_14400         0x003840
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -133,7 +135,7 @@
 
 // Command Parameters
 #define    BAUD_9600          0x002580   // expression of baud rate
-#define    BAUD 14400         0x003840   // in hexidecimal
+#define    BAUD_14400         0x003840   // in hexidecimal
 #define    BAUD_19200         0x004B00
 #define    BAUD_56000         0x00DAC0
 #define    BAUD_115200        0x01C200
