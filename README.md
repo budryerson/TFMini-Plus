@@ -55,4 +55,5 @@ The device functions as an I2C slave device and the default address is `16` (`0x
 
 Upon initial application of power, the device will start up and remain in UART mode for about ten seconds.  Limited necessary serial communication, for example a firmware update, can occur at this time.
 
-The I/O modes are not supported in this library.  Please do not attempt to use any I/O commands that mayu be defined in this library's header file.
+### Using the I/O modes of the device
+The so-called I/O modes are not supported in this library.  Please do not attempt to use any I/O commands that you may find to be defined in this library's header file.
