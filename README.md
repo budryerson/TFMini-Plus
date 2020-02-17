@@ -19,7 +19,7 @@ The default format for each frame of data consists of three 16-bit measurement v
 
 The default TFMini-Plus communication interface is UART (serial); the default baud-rate is 115200 and the default data frame-rate is 100Hz.  Upon power-up in serial mode, the device will immediately start sending frames of measurement data.
 
-At the moment, this library supports only the default, UART (serial) communication interface.  Please read more below about using the I2C version of the device.
+This library supports the default, UART (serial) communication interface.  For communication in I2C mode, please use the TFMini-Plus-I2C version of the library.  Read more below about using the I2C mode of the device.
 
 ### Arduino Library Commands
 `begin()` passes a serial stream to the library and returns a boolean value indicating whether serial data is available. The function also sets a public one-byte `status` or error code.  Status codes are defined in the library's header file.
@@ -40,19 +40,20 @@ Also included:
 
 All of the code for this library is richly commented to assist with understanding and in problem solving.
 
-### Some thoughts about the I2C version of the device
+### Using the I2C version of the device
 According to Benewake:
 >1- the measuring frequency of the module should be 2.5 times larger than the IIC reading frquency.
 <br />2- the iic reading frequency should not exceed 100hz<br />
 
 Because the Data Frame Rate is limited to 1000Hz, this condition implys a 400Hz data sampling limit in I2C mode.  Benewake says sampling should not exceed 100Hz.  They don't say why; but you might keep that limitation in mind when you consider using the I2C interface.
 
-To configure the device for I2C communication, a command must be sent using the UART inteface.  Therefore, the reconfiguation should be made prior to the device's service installation, either by using this library or the serial GUI test application supplied by the manufacturer.
-
-The device will function as an I2C slave device.  Its address is user-programable by sending the `SET_I2C_ADDRESS` command and a parameter in the range of `0x01` to `0x7F`.  Any new address will not take effect until a `SAVE_SETTINGS` command is sent.  The default address is `0x10`. 
+To configure the device for I2C communication, a command must be sent using the UART inteface.  Therefore, this reconfiguation should be made prior to the device's service installation, either by using this library's `SET_I2C_MODE` command or the serial GUI test application and code supplied by the manufacturer.
 
 The `SET_I2C_MODE` command does not require a subsequent `SAVE_SETTINGS` command.  The device will remain in I2C mode after power has been removed and restored.  Even a `RESTORE_FACTORY_SETTINGS` command will not restore the device to its default, UART communication interface mode.  The only way to return to serial mode is with the `SET_SERIAL_MODE` command.
 
+The device functions as an I2C slave device and the default address is `16` (`0x10` Hex) but is user-programable by sending the `SET_I2C_ADDRESS` command and a parameter in the range of `1` to `127`.  The new setting will also take effect immediately and permanently without a `SAVE_SETTINGS` command.  The `RESTORE_FACTORY_SETTINGS` command will restore the default address.  An example sketch included in the TFMini-Plus-I2C library can be used to change the I2C address.
+
 Upon initial application of power, the device will start up and remain in UART mode for about ten seconds.  Limited necessary serial communication, for example a firmware update, can occur at this time.
 
-I2C and I/O modes are not yet supported in this version of the library.  They are coming soon.  Please do not attempt to use the I2C and I/O commands that are defined in this library's header file at this time.
+For I2C communication please use the 
+The I/O modes are not yet supported in this version of the library.  Please do not attempt to use the I2C and I/O commands that are defined in this library's header file at this time.
