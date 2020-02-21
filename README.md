@@ -53,7 +53,5 @@ The `SET_I2C_MODE` command does not require a subsequent `SAVE_SETTINGS` command
 
 The device functions as an I2C slave device and the default address is `16` (`0x10` Hex) but is user-programable by sending the `SET_I2C_ADDRESS` command and a parameter in the range of `1` to `127`.  The new setting will also take effect immediately and permanently without a `SAVE_SETTINGS` command.  The `RESTORE_FACTORY_SETTINGS` command will restore the default address.  An example sketch included in the TFMini-Plus-I2C library can be used to change the I2C address.
 
-Upon initial application of power, the device will start up and remain in UART mode for about ten seconds.  Limited necessary serial communication, for example a firmware update, can occur at this time.
-
 ### Using the I/O modes of the device
 The so-called I/O modes are not supported in this library.  Please do not attempt to use any I/O commands that you may find to be defined in this library's header file.
