@@ -67,7 +67,7 @@
 
 // Defines
 #define TFMP_FRAME_SIZE         9   // The output data frame size is 9 bytes
-#define TFMP_REPLY_SIZE         8   // The longest co0mmand reply is 8 bytes
+#define TFMP_REPLY_SIZE         8   // The longest command reply is 8 bytes
 
 // Timeout Limits for various functions
 #define TFMP_MAX_READS           20   // readData() sets SERIAL error
