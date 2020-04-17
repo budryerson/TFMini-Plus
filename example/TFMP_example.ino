@@ -1,7 +1,7 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29 JAN 2019
- * Last work: 16 MAR 2020
+ * Last work: 17 APR 2020
  *
  * Description: Arduino sketch to test the Benewake TFMini Plus
  * time-of-flight Lidar ranging sensor using the TFMPlus library.
@@ -125,7 +125,7 @@ void setup()
   //factoryReset();     // reset to default settings
     firmwareVersion();  // get firmware version
     frameRate( 100);    // set device data frame-rate to 100Hz
-    saveSettings();     // save the frame-=rate setting
+    saveSettings();     // save the frame-rate setting
 
     // Initialize the variables for this example
     loopCount = 0;         // Reset loop counter.
