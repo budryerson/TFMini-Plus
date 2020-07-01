@@ -1,5 +1,7 @@
 #######################################
-# Syntax Coloring Map 
+# Syntax Coloring Map for TFMPlus
+# Date: 20200701
+# Note: Separate terms with TABs
 #######################################
 
 #######################################
@@ -7,6 +9,8 @@
 #######################################
 
 TFMPlus	KEYWORD1
+status	KEYWORD1
+version	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -16,8 +20,8 @@ begin	KEYWORD2
 getData	KEYWORD2
 sendCommand	KEYWORD2
 printStatus	KEYWORD2
-status	KEYWORD2
-version	KEYWORD2
+printFrame	KEYWORD2
+printReply	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
