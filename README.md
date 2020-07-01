@@ -1,4 +1,10 @@
 # TFMini-Plus
+### PLEASE NOTE:
+With version v1.4.0, data variables are changed from unsigned to signed 16bit integers in order to support `dist` (distance) and `flux` (signal strength) error codes such as -1, -2 & -4.  These codes are listed in the TFMini-S Product Manual contained in the **documents** folder.
+
+In the example code, `printStatus()` or `printErrorStatus()` has been replaced with `printFrame()` in response to a failed `getData()` or `printReply()` if responding to `sendCommand()`.
+<hr />
+
 ### Arduino Library for the Benewake TFMini-Plus Lidar sensor
 
 The **TFMini-S** is said to be compatible with the **TFMini-Plus** and therefore able to use this library.  However, this library is *not compatible* with the **TFMini**, which is a different product with its own command and data structure.
@@ -20,6 +26,7 @@ The default format for each frame of data consists of three 16-bit measurement v
 The default TFMini-Plus communication interface is UART (serial); the default baud-rate is 115200 and the default data frame-rate is 100Hz.  Upon power-up in serial mode, the device will immediately start sending frames of measurement data.
 
 This library supports the default, UART (serial) communication interface.  For communication in I2C mode, please use the TFMini-Plus-I2C version of the library.  Read more below about using the I2C mode of the device.
+<hr />
 
 ### Arduino Library Commands
 `begin()` passes a serial stream to the library and returns a boolean value indicating whether serial data is available. The function also sets a public one-byte `status` or error code.  Status codes are defined in the library's header file.
