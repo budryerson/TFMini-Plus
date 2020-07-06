@@ -57,7 +57,10 @@ void setup()
         printf( "passed.\r\n");
     }
     else tfmP.printReply();
-    // - - Display the firmware version - - - - - - - - -
+  
+    delay(300);  // added to allow the System Rest enough time to complete
+
+  // - - Display the firmware version - - - - - - - - -
     printf( "Firmware version: ");
     if( tfmP.sendCommand( OBTAIN_FIRMWARE_VERSION, 0))
     {
