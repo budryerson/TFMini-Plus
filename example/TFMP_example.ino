@@ -73,7 +73,7 @@ void setup()
     printf( "Data-Frame rate: ");
     if( tfmP.sendCommand( SET_FRAME_RATE, FRAME_20))
     {
-        printf( "%2uHz.\r\n", FRAME_250);
+        printf( "%2uHz.\r\n", FRAME_20);
     }
     else tfmP.printReply();
     // - - - - - - - - - - - - - - - - - - - - - - - -
