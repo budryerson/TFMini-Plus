@@ -1,5 +1,5 @@
 /* File Name: TFMPlus.cpp
- * Version: 1.4.0
+ * Version: 1.4.1
  * Described: Arduino Library for the Benewake TFMini-Plus Lidar sensor
  *            The TFMini-Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
@@ -44,7 +44,10 @@
              -1    Other value   Strength ≤ 100
              -2    -1            Signal strength saturation
              -4    Other value   Ambient light saturation
-           -  -  -  -  -  -  -  -  -  -  -  -  -  -  -               
+           -  -  -  -  -  -  -  -  -  -  -  -  -  -  -   
+ * v.1.4.1 - 22JUL20 - Fixed bug in sendCommand() checksum calculation
+           - Changed two printf()s to Serial.print()s
+	   - Fixed printReply() to show data from 'reply' rather than 'frame'
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -218,7 +221,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     // Create a checksum byte for the command data array.
     chkSum = 0;
     // Add together all bytes but the last...
-    for( uint8_t i = 0; i < ( replyLen - 1); i++) chkSum += reply[ i];
+    for( uint8_t i = 0; i < ( cmndLen - 1); i++) chkSum += cmndData[ i];
     // and save it as the last byte of command data.
     cmndData[ cmndLen - 1] = (uint8_t)chkSum;
 
@@ -321,7 +324,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
 void TFMPlus::printStatus()
 {
     Serial.print("Status: ");
-    if( status == TFMP_READY)          printf( "READY");
+    if( status == TFMP_READY)          Serial.print( "READY");
     else if( status == TFMP_SERIAL)    Serial.print( "SERIAL");
     else if( status == TFMP_HEADER)    Serial.print( "HEADER");
     else if( status == TFMP_CHECKSUM)  Serial.print( "CHECKSUM");
@@ -363,8 +366,8 @@ void TFMPlus::printReply()
     for( uint8_t i = 0; i < TFMP_REPLY_SIZE; i++)
     {
       Serial.print(" ");
-      Serial.print( frame[ i] < 16 ? "0" : "");
-      Serial.print( frame[ i], HEX);
+      Serial.print( reply[ i] < 16 ? "0" : "");
+      Serial.print( reply[ i], HEX);
     }
     Serial.println();
 }
