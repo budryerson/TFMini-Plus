@@ -7,7 +7,7 @@ In the example code, `printStatus()` or `printErrorStatus()` has been replaced w
 
 ### Arduino Library for the Benewake TFMini-Plus Lidar sensor
 
-The **TFMini-S** is said to be compatible with the **TFMini-Plus** and therefore able to use this library.  However, this library is *not compatible* with the **TFMini**, which is a different product with its own command and data structure.
+The **TFMini-S** is largely compatible with the **TFMini-Plus** and therefore able to use this library.  One difference is that the **TFMini-Plus** switches immediately upon command to change communication mode (`SET_I2C_MODE`, `SET_SERIAL_MODE`).  The **TFMini-S** requires a following `SAVE_SETTING` command.  This library is *not compatible* with the **TFMini**, which is an entirely different product with its own command and data structure.
 
 With hardware v1.3.5 and firmware v1.9.0 and above, the communication interface of the TFMini-Plus can be configured to use either the default **UART** (serial) or the **I2C** (two-wire) protocol.  Additionaly, the device can be configured to output a binary (high/low) voltage level to signal that a detected object is within or beyond a user-defined range.  Please see the manufacturer's Product Manual in 'documents' for more information about the **I/O** output mode.
 
@@ -19,8 +19,8 @@ Device data-frame output rates are programmable up to 10KHz, but the internal me
 <br />If the output rate is set to 0 (zero), single data frames can be triggered by using the `TRIGGER_DETECTION` command.
 
 Measurement data values are passed-back in three, 16-bit, signed integer variables:
-<br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters. Range: 0 - 1200
-<br />&nbsp;&nbsp;&#9679;&nbsp;  Strength (voltage) or quality of returned signal in arbitrary units. Range: 0 - 32767
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Distance to target in centimeters/millimeters. Range: 0 - 1200/12000
+<br />&nbsp;&nbsp;&#9679;&nbsp;  Strength (voltage) or quality of returned signal in arbitrary units. Range: -1, 0 - 32767
 <br />&nbsp;&nbsp;&#9679;&nbsp;  Temperature of the device in code. Range: -25°C to 125°C
 
 The default TFMini-Plus communication interface is UART (serial); the default baud-rate is 115200 and the default data frame-rate is 100Hz.  Upon power-up in serial mode, the device will immediately start sending frames of measurement data.
@@ -33,7 +33,9 @@ This library supports the default, UART (serial) communication interface.  For c
 
 The `getData( dist, flux, temp)` function passes back three, signed, 16-bit measuremnent data values. It sets the `status` error code byte and returns a boolean value indicating 'pass/fail'.  If no serial data is received or no header sequence (`0x5959`) is detected within one (1) second, the function sets an appropriate `status` error code and 'fails'.  Given the asynchronous nature of the device, the serial buffer is flushed before reading and the `frame` and `reply` data arrays are zeroed out to delete any residual data.  This helps with valid data recognition and error discrimination.
 
-`sendCommand( cmnd, param)` sends a 32bit command and a 32bit parameter to the device.  It sets the `status` error code byte and returns a boolean 'pass/fail' value.  A proper command (`cmnd`) must be selected from the library's list of twenty defined commands.  A parameter (`param`) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
+A `getData( dist)` function is available that passes back only the distance value.
+
+sendCommand( cmnd, param)` sends a 32bit command and a 32bit parameter to the device.  It sets the `status` error code byte and returns a boolean 'pass/fail' value.  A proper command (`cmnd`) must be selected from the library's list of twenty defined commands.  A parameter (`param`) may be entered directly as an unsigned number, but it is better to choose from the Library's defined parameters because **an erroneous parameter can block communication and there is no external means of resetting the device to factory defaults.**
 
 Any change of device settings (i.e. frame-rate or baud-rate) must be followed by a `SAVE_SETTINGS` command or else the modified values may be lost when power is removed.  `SYSTEM_RESET` and `RESTORE_FACTORY_SETTINGS` do not require a `SAVE_SETTINGS` command.
 
