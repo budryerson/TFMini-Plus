@@ -1,6 +1,6 @@
 # TFMini-Plus
 ### PLEASE NOTE:
-With version v1.4.0, data variables are changed from unsigned to signed 16bit integers in order to support error codes returned in the `dist` (distance) and `flux` (signal strength) data.  The only wokring error code at the moment is `-1` returned as `flux` data when the return signal is saturated.
+With version v1.4.0, data variables are changed from unsigned to signed 16bit integers in order to support error codes returned in the `dist` (distance) and `flux` (signal strength) data.  The only working error code at the moment is `-1` returned as `flux` data when the return signal is saturated.
 
 In the example code, `printStatus()` or `printErrorStatus()` has been replaced with `printFrame()` in response to a failed `getData()` or `printReply()` if responding to `sendCommand()`.
 <hr />
