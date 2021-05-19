@@ -167,7 +167,7 @@
 #define    FRAME_0            0x0000    // internal measurement rate
 #define    FRAME_1            0x0001    // expressed in hexidecimal
 #define    FRAME_2            0x0002
-#define    FRAME_5            0x0003
+#define    FRAME_5            0x0005    // incorrectly set to 3 in prior versions
 #define    FRAME_10           0x000A
 #define    FRAME_20           0x0014
 #define    FRAME_25           0x0019
