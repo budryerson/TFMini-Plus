@@ -64,3 +64,30 @@ The device functions as an I2C slave device and the default address is `16` (`0x
 
 ### Using the I/O modes of the device
 The so-called I/O modes are not supported in this library.  Please do not attempt to use any I/O commands that you may find to be defined in this library's header file.
+
+The I/O output mode is enabled and disabled by this 9 byte command:<br />
+5A 09 3B MODE DL DH ZL ZH SU
+
+Command byte number:<br />
+0 &nbsp;&nbsp; `0x5A`:  Header byte, starts every command frame<br />
+1 &nbsp;&nbsp; `0x09`:  Command length, number of bytes in command frame<br />
+2 &nbsp;&nbsp; `0x3B`:  Command number<br />
+<br />
+3 &nbsp;&nbsp; MODE:<br />
+&nbsp;&nbsp;&nbsp;&nbsp; `0x00`: I/O Mode OFF, standard data output mode<br />
+&nbsp;&nbsp;&nbsp;&nbsp; `0x01`: I/O Mode ON, output: near = high and far = low<br />
+&nbsp;&nbsp;&nbsp;&nbsp; `0x02`: I/O Mode ON, output: near = low and far = high<br />
+<br />
+4 &nbsp;&nbsp; DL: Near distance lo order byte of 16 bit integer<br />
+5 &nbsp;&nbsp; DH: Near distance hi order byte<br />
+<br />
+6 &nbsp;&nbsp; ZL: Zone width lo byte<br />
+7 &nbsp;&nbsp; ZL: Zone width hi byte<br />
+<br />
+8 &nbsp;&nbsp;SU: Checkbyte (the lo order byte of the sum of all the other bytes in the frame)<br />
+<br />
+If an object's distance is greater than the Near distance (D) plus the Zone width (Z) then the object is "far."<br />
+If the distance is less than the Near distance (D) then the object is "near".<br />
+The Zone is a neutral area. Any object distances measured in this range do not change the output.<br />
+The output can be set to be either high when the object is near, and low when it's far (Mode 1); or low when it's near, and high when it's far (Mode 2).<br />
+The high level is 3.3V, the low level is 0V.<br />
