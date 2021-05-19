@@ -1,5 +1,5 @@
 /* File Name: TFMPlus.h
- * Version: 1.4.1
+ * Version: 1.4.2
  * Described: Arduino Library for the Benewake TFMini-Plus Lidar sensor
  *            The TFMini-Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
