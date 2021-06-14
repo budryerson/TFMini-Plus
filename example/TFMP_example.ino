@@ -28,14 +28,18 @@ TFMPlus tfmP;         // Create a TFMini Plus object
 
 // The Software Serial library is an alternative for devices that
 // have only one hardware serial port. Delete the comment slashes
-// on lines 37 and 38 to invoke the library, and be sure to choose
+// on lines 39 and 40 to invoke the library, and be sure to choose
 // the correct RX and TX pins: pins 10 and 11 in this example. Then
 // in the 'setup' section, change the name of the hardware 'Serial2'
 // port to match the name of your software serial port, such as:
 // 'mySerial.begin(115200); etc.
+// Change value on line 41 to true to set the output format to
+// milimetres.
 
 //#include <SoftwareSerial.h>       
 //SoftwareSerial mySerial( 10, 11);   
+bool format_mm = false;       // Default output format as centimetres (false)...
+                              // for milimetres define as true
                                     
 void setup()
 {
@@ -76,6 +80,20 @@ void setup()
         printf( "%2uHz.\r\n", FRAME_20);
     }
     else tfmP.printReply();
+  // - - Change format to mm - - - - - - - - - - - - -
+  if (format_mm == true)
+    if( tfmP.sendCommand( STANDARD_FORMAT_MM, 0))      // Set output distance format to Milimeters
+    {
+        printf( "Distance format changed to Milimeters \r\n");
+    }  
+  // - - save settings - - - - - - - - - - - - - - - -
+    printf( "Saving Settings: ");
+    if( tfmP.sendCommand( SAVE_SETTINGS, 0))          // Saving settings in case format changed
+                                                      // from the default cm to mm.
+    {
+        printf( "passed.\r\n");
+    }
+    else tfmP.printReply();  
     // - - - - - - - - - - - - - - - - - - - - - - - -
 
     delay(500);            // And wait for half a second.
@@ -93,7 +111,12 @@ void loop()
 
     if( tfmP.getData( tfDist, tfFlux, tfTemp)) // Get data from the device.
     {
-      printf( "Dist:%04icm ", tfDist);   // display distance,
+      if(format_mm == true){               
+        printf( "Dist:%05imm ", tfDist);   // display distance in milimetres (extra digit added), 
+      }
+      else{
+        printf( "Dist:%04icm ", tfDist);   // display distance in centimetres,
+      }
       printf( "Flux:%05i ",   tfFlux);   // display signal strength/quality,
       printf( "Temp:%2i\°C",  tfTemp);   // display temperature,
       printf( "\r\n");                   // end-of-line.
