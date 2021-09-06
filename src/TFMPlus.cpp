@@ -50,7 +50,11 @@
 	   - Fixed printReply() to show data from 'reply' rather than 'frame'
  * v.1.4.2 - 19MAY21 - Changed command paramter 'FRAME_5' to correct value.
              It was set to 0x0003.  Now it's set to 0x0005
- * v.1.5.0 - 06SEP21 - Corrected (reversed) Enable/Disable commands in 'TFMPlus.h'  
+ * v.1.5.0 - 06SEP21 - Corrected (reversed) Enable/Disable commands in 'TFMPlus.h'
+             Changed three command names
+               OBTAIN_FIRMWARE_VERSION is now GET_FIRMWARE_VERSION
+               RESTORE_FACTORY_SETTINGS is now HARD_RESET
+               SYSTEM_RESET is now SOFT_RESET
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -291,7 +295,7 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 5 - Interpret different command responses.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    if( cmnd == OBTAIN_FIRMWARE_VERSION)
+    if( cmnd == GET_FIRMWARE_VERSION)
     {
         version[ 0] = reply[5];  // set firmware version.
         version[ 1] = reply[4];
@@ -299,8 +303,8 @@ bool TFMPlus::sendCommand( uint32_t cmnd, uint32_t param)
     }
     else
     {
-        if( cmnd == SYSTEM_RESET ||
-            cmnd == RESTORE_FACTORY_SETTINGS ||
+        if( cmnd == SOFT_RESET ||
+            cmnd == HARD_RESET ||
             cmnd == SAVE_SETTINGS )
         {
             if( reply[ 3] == 1)      // If PASS/FAIL byte not zero ...
