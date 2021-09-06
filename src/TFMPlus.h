@@ -1,5 +1,5 @@
 /* File Name: TFMPlus.h
- * Version: 1.4.2
+ * Version: 1.5.0
  * Described: Arduino Library for the Benewake TFMini-Plus Lidar sensor
  *            The TFMini-Plus is a unique product, and the various
  *            TFMini Libraries are not compatible with the Plus.
@@ -44,6 +44,7 @@
           -4     Other value   Ambient light saturation
       -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
  * v.1.4.1 - 22JUL20 - Fixed bugs in TFMPlus.cpp
+ * v.1.5.0 - 06SEP21 - Corrected (reversed) Enable/Disable commands
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -135,8 +136,8 @@
 #define    STANDARD_FORMAT_CM         0x01050505   //           "
 #define    PIXHAWK_FORMAT             0x02050505   //           "
 #define    STANDARD_FORMAT_MM         0x06050505   //           "
-#define    ENABLE_OUTPUT              0x00070505   //           "
-#define    DISABLE_OUTPUT             0x01070505   //           "
+#define    ENABLE_OUTPUT              0x01070505   //           "
+#define    DISABLE_OUTPUT             0x00070505   //           "
 #define    SET_I2C_ADDRESS            0x100B0505   //           "
 
 #define    SET_SERIAL_MODE            0x000A0500   // default is Serial (UART)
