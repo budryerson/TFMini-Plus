@@ -45,6 +45,10 @@
       -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
  * v.1.4.1 - 22JUL20 - Fixed bugs in TFMPlus.cpp
  * v.1.5.0 - 06SEP21 - Corrected (reversed) Enable/Disable commands
+             Changed three command names
+               OBTAIN_FIRMWARE_VERSION is now GET_FIRMWARE_VERSION
+               RESTORE_FACTORY_SETTINGS is now HARD_RESET
+               SYSTEM_RESET is now SOFT_RESET
  *
  * Default settings for the TFMini-Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -122,11 +126,11 @@
 // 0x     00       00       00       00
 //     one byte  command  command   reply
 //     payload   number   length    length
-#define    OBTAIN_FIRMWARE_VERSION    0x00010407   // returns 3 byte firmware version
+#define    GET_FIRMWARE_VERSION       0x00010407   // returns 3 byte firmware version
 #define    TRIGGER_DETECTION          0x00040400   // must have set frame rate to zero
                                                    // returns a 9 byte data frame
-#define    SYSTEM_RESET               0x00020405   // returns a 1 byte pass/fail (0/1)
-#define    RESTORE_FACTORY_SETTINGS   0x00100405   //           "
+#define    SOFT_RESET                 0x00020405   // returns a 1 byte pass/fail (0/1)
+#define    HARD_RESET                 0x00100405   //           "
 #define    SAVE_SETTINGS              0x00110405   // This must follow every command
                                                    // that modifies volatile parameters.
                                                    // Returns a 1 byte pass/fail (0/1)
