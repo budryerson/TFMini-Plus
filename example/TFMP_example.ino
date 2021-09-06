@@ -51,8 +51,8 @@ void setup()
 
     // Send some example commands to the TFMini-Plus
     // - - Perform a system reset - - - - - - - - - - -
-    printf( "System reset: ");
-    if( tfmP.sendCommand( SYSTEM_RESET, 0))
+    printf( "Soft reset: ");
+    if( tfmP.sendCommand( SOFT_RESET, 0))
     {
         printf( "passed.\r\n");
     }
@@ -62,7 +62,7 @@ void setup()
 
   // - - Display the firmware version - - - - - - - - -
     printf( "Firmware version: ");
-    if( tfmP.sendCommand( OBTAIN_FIRMWARE_VERSION, 0))
+    if( tfmP.sendCommand( GET_FIRMWARE_VERSION, 0))
     {
         printf( "%1u.", tfmP.version[ 0]); // print three single numbers
         printf( "%1u.", tfmP.version[ 1]); // each separated by a dot
