@@ -1,10 +1,10 @@
 /* File Name: TFMP_example.ino
  * Developer: Bud Ryerson
  * Inception: 29JAN2019
- * Last work: 06SEP2021
+ * Last work: 10SEP2021
 
  * Description: Arduino sketch to test the Benewake TFMini Plus
- * time-of-flight Lidar ranging sensor using the TFMPlus library.
+ * time-of-flight Lidar ranging sensor using the TFMPlus Library.
 
  * Default settings for the TFMini Plus are a 115200 serial baud rate
  * and a 100Hz measurement frame rate. The device will begin returning
@@ -42,7 +42,7 @@ void setup()
     Serial.begin( 115200);   // Intialize terminal serial port
     delay(20);               // Give port time to initalize
     printf_begin();          // Initialize printf.
-    printf("\r\nTFMPlus Library Example - 06SEP2021\r\n");  // say 'hello'
+    printf("\r\nTFMPlus Library Example - 10SEP2021\r\n");  // say 'hello'
 
     Serial2.begin( 115200);  // Initialize TFMPLus device serial port.
     delay(20);               // Give port time to initalize
@@ -78,7 +78,30 @@ void setup()
     else tfmP.printReply();
     // - - - - - - - - - - - - - - - - - - - - - - - -
 
-    delay(500);            // And wait for half a second.
+/*  // - - - - - - - - - - - - - - - - - - - - - - - -  
+    // The next two commands may be used to switch the device 
+    // into I2C mode.  This sketch will no longer receive UART
+    // (serial) data.  The 'TFMPI2C_example' sketch in the 
+    // TFMPI2C Library can be used to switch the device back
+    // to UART mode.
+    // Don't forget to switch the cables, too.
+    // - - - - - - - - - - - - - - - - - - - - - - - -
+    printf( "Set I2C Mode: ");
+    if( tfmP.sendCommand( SET_I2C_MODE, 0))
+    {
+        printf( "mode set.\r\n");
+    }
+    else tfmP.printReply();
+    printf( "Save settings: ");
+    if( tfmP.sendCommand( SAVE_SETTINGS, 0))
+    {
+        printf( "saved.\r\n");
+    }
+    else tfmP.printReply();
+    // - - - - - - - - - - - - - - - - - - - - - - - -    
+*/
+
+  delay(500);            // And wait for half a second.
 }
 
 // Initialize variables
