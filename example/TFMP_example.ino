@@ -118,7 +118,7 @@ void loop()
     {
       printf( "Dist:%04icm ", tfDist);   // display distance,
       printf( "Flux:%05i ",   tfFlux);   // display signal strength/quality,
-      printf( "Temp:%2i\°C",  tfTemp);   // display temperature,
+      printf( "Temp:%2i%s",  tfTemp, "C");   // display temperature,
       printf( "\r\n");                   // end-of-line.
     }
     else                  // If the command fails...
